@@ -1,13 +1,31 @@
 spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
   kafka:
     producer:
       bootstrap-servers: localhost:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      # CHANGED: Need JSON serializer for Transaction objects
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
     consumer:
       bootstrap-servers: localhost:9092
       group-id: midas-core
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    general:
-      kafka-topic: test-topic
+      # CHANGED: Need JSON deserializer for Transaction objects
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: com.jpmc.midascore.foundation
+        spring.json.value.default.type: com.jpmc.midascore.foundation.Transaction
+        spring.json.use.type.info.headers: false
+general:
+  kafka-topic: test-topic
